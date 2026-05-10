@@ -1,20 +1,35 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
+// --- Public Routes ---
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// --- Authenticated Routes ---
+Route::middleware(['auth', 'verified'])->group(function () {
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Dashboard — all roles
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // --- Employee & Agent Routes ---
+    Route::middleware(['role:employee,agent,admin'])->prefix('tickets')->name('tickets.')->group(function () {
+        // Ticket routes will be added in Phase 3
+    });
+
+    // --- Agent & Admin Routes ---
+    Route::middleware(['role:agent,admin'])->prefix('agent')->name('agent.')->group(function () {
+        // Agent routes will be added in Phase 3
+    });
+
+    // --- Admin Only Routes ---
+    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
+        // Admin routes will be added in Phase 3
+    });
+
 });
 
 require __DIR__.'/auth.php';
