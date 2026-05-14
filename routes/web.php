@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TicketController;
+use App\Http\Controllers\TicketReplyController;
 use Illuminate\Support\Facades\Route;
 
 // --- Public Routes ---
@@ -15,20 +17,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // --- Employee & Agent Routes ---
-    Route::middleware(['role:employee,agent,admin'])->prefix('tickets')->name('tickets.')->group(function () {
-        // Ticket routes will be added in Phase 3
-    });
+    // --- Ticket Routes — all roles ---
+    Route::middleware(['role:employee,agent,admin'])
+        ->prefix('tickets')
+        ->name('tickets.')
+        ->group(function () {
+            Route::get('/', [TicketController::class, 'index'])->name('index');
+            Route::get('/create', [TicketController::class, 'create'])->name('create');
+            Route::post('/', [TicketController::class, 'store'])->name('store');
+            Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
+            Route::get('/{ticket}/edit', [TicketController::class, 'edit'])->name('edit');
+            Route::patch('/{ticket}', [TicketController::class, 'update'])->name('update');
+
+            // Replies
+            Route::post('/{ticket}/replies', [TicketReplyController::class, 'store'])
+                ->name('replies.store');
+        });
 
     // --- Agent & Admin Routes ---
-    Route::middleware(['role:agent,admin'])->prefix('agent')->name('agent.')->group(function () {
-        // Agent routes will be added in Phase 3
-    });
+    Route::middleware(['role:agent,admin'])
+        ->prefix('agent')
+        ->name('agent.')
+        ->group(function () {
+            // Agent specific routes added in future phases
+        });
 
     // --- Admin Only Routes ---
-    Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        // Admin routes will be added in Phase 3
-    });
+    Route::middleware(['role:admin'])
+        ->prefix('admin')
+        ->name('admin.')
+        ->group(function () {
+            // Admin specific routes added in future phases
+        });
 
 });
 
