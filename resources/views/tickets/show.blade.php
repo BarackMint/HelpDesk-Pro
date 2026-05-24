@@ -109,55 +109,107 @@
                 </div>
             @endif
 
-            {{-- Replies --}}
+            {{-- Replies Thread --}}
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
                 <h3 class="text-sm font-semibold text-gray-800 mb-4">
                     Replies ({{ $ticket->replies->count() }})
                 </h3>
 
                 @forelse($ticket->replies as $reply)
-                    <div class="border-b pb-4 mb-4 last:border-0 last:pb-0 last:mb-0">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-sm font-medium text-gray-800">
-                                {{ $reply->author->name }}
-                            </span>
-                            <span class="text-xs text-gray-400">
-                                {{ $reply->created_at->diffForHumans() }}
-                            </span>
+                    <div class="flex gap-4 pb-4 mb-4 border-b last:border-0 last:pb-0 last:mb-0">
+
+                        {{-- Avatar --}}
+                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center
+                            text-xs font-bold text-gray-600 shrink-0">
+                            {{ strtoupper(substr($reply->author->name, 0, 1)) }}
                         </div>
-                        <p class="text-gray-700 text-sm whitespace-pre-line">{{ $reply->body }}</p>
+
+                        {{-- Content --}}
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-medium text-gray-800">
+                                        {{ $reply->author->name }}
+                                    </span>
+                                    {{-- Role Badge --}}
+                                    <span class="px-2 py-0.5 rounded-full text-xs
+                                        {{ $reply->author->isAdmin() ? 'bg-red-100 text-red-600' : '' }}
+                                        {{ $reply->author->isAgent() ? 'bg-blue-100 text-blue-600' : '' }}
+                                        {{ $reply->author->isEmployee() ? 'bg-gray-100 text-gray-600' : '' }}
+                                    ">
+                                        {{ ucfirst($reply->author->role) }}
+                                    </span>
+                                </div>
+                                <span class="text-xs text-gray-400">
+                                    {{ $reply->created_at->diffForHumans() }}
+                                </span>
+                            </div>
+                            <p class="text-gray-700 text-sm whitespace-pre-line">{{ $reply->body }}</p>
+                        </div>
+
                     </div>
                 @empty
-                    <p class="text-gray-400 text-sm">No replies yet.</p>
+                    <p class="text-gray-400 text-sm">No replies yet. Be the first to respond.</p>
                 @endforelse
 
                 {{-- Reply Form --}}
                 @if(!$ticket->isClosed())
-                    <div class="mt-6 border-t pt-4">
-                        <h4 class="text-sm font-medium text-gray-800 mb-2">Add Reply</h4>
+                    <div class="mt-6 border-t pt-6">
+                        <h4 class="text-sm font-semibold text-gray-800 mb-3">Post a Reply</h4>
                         <form method="POST" action="{{ route('tickets.replies.store', $ticket) }}">
                             @csrf
-                            <textarea
-                                name="body"
-                                rows="3"
-                                class="w-full border-gray-300 rounded-md shadow-sm @error('body') border-red-500 @enderror"
-                                placeholder="Write your reply..."
-                            >{{ old('body') }}</textarea>
-                            @error('body')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                            <div class="mt-2">
-                                <button type="submit"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 text-sm">
-                                    Post Reply
-                                </button>
+
+                            {{-- Reply Body --}}
+                            <div class="mb-4">
+                                <textarea
+                                    name="body"
+                                    rows="4"
+                                    class="w-full border-gray-300 rounded-md shadow-sm
+                                        @error('body') border-red-500 @enderror"
+                                    placeholder="Write your reply..."
+                                >{{ old('body') }}</textarea>
+                                @error('body')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
                             </div>
+
+                            {{-- Status Update — Agent & Admin Only --}}
+                            @if(auth()->user()->isAgent() || auth()->user()->isAdmin())
+                                <div class="mb-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Update Status
+                                        <span class="text-gray-400 font-normal">(optional)</span>
+                                    </label>
+                                    <select name="status"
+                                        class="border-gray-300 rounded-md shadow-sm
+                                            @error('status') border-red-500 @enderror">
+                                        <option value="">— No Change —</option>
+                                        @foreach(['open', 'in_progress', 'resolved', 'closed'] as $status)
+                                            <option value="{{ $status }}"
+                                                {{ old('status') === $status ? 'selected' : '' }}>
+                                                {{ ucfirst(str_replace('_', ' ', $status)) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('status')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            @endif
+
+                            <button type="submit"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 text-sm">
+                                Post Reply
+                            </button>
+
                         </form>
                     </div>
                 @else
-                    <p class="mt-4 text-sm text-gray-400 border-t pt-4">
-                        This ticket is closed. No further replies can be added.
-                    </p>
+                    <div class="mt-6 border-t pt-4">
+                        <p class="text-sm text-gray-400">
+                            This ticket is closed. No further replies can be added.
+                        </p>
+                    </div>
                 @endif
 
             </div>
