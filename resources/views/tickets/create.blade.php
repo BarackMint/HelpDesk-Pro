@@ -1,116 +1,114 @@
-{{-- Create Ticket Form --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Create Ticket
-        </h2>
+        <div>
+            <h1 class="text-base font-semibold text-gray-900">Create Ticket</h1>
+            <p class="text-sm text-gray-400 mt-0.5">Submit a new support request</p>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
+    <div class="max-w-2xl">
+        <div class="bg-white rounded-lg border border-gray-100 p-6">
+            <form method="POST" action="{{ route('tickets.store') }}">
+                @csrf
 
-                <form method="POST" action="{{ route('tickets.store') }}">
-                    @csrf
+                <div class="space-y-5">
 
                     {{-- Title --}}
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Title <span class="text-red-500">*</span>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400
+                            uppercase tracking-wide mb-1.5">
+                            Title <span class="text-red-400">*</span>
                         </label>
-                        <input
-                            type="text"
-                            name="title"
-                            value="{{ old('title') }}"
-                            class="w-full border-gray-300 rounded-md shadow-sm @error('title') border-red-500 @enderror"
+                        <input type="text" name="title" value="{{ old('title') }}"
                             placeholder="Brief summary of the issue"
-                        />
+                            class="w-full border-gray-200 rounded-md text-sm
+                            focus:ring-gray-900 focus:border-gray-900
+                            @error('title') border-red-300 @enderror"/>
                         @error('title')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
                     {{-- Description --}}
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Description <span class="text-red-500">*</span>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400
+                            uppercase tracking-wide mb-1.5">
+                            Description <span class="text-red-400">*</span>
                         </label>
-                        <textarea
-                            name="description"
-                            rows="5"
-                            class="w-full border-gray-300 rounded-md shadow-sm @error('description') border-red-500 @enderror"
-                            placeholder="Describe the issue in detail"
+                        <textarea name="description" rows="5"
+                            placeholder="Describe the issue in detail..."
+                            class="w-full border-gray-200 rounded-md text-sm
+                            focus:ring-gray-900 focus:border-gray-900
+                            @error('description') border-red-300 @enderror"
                         >{{ old('description') }}</textarea>
                         @error('description')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
 
                     {{-- Priority & Category --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-
-                        {{-- Priority --}}
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Priority <span class="text-red-500">*</span>
+                            <label class="block text-xs font-medium text-gray-400
+                                uppercase tracking-wide mb-1.5">
+                                Priority <span class="text-red-400">*</span>
                             </label>
-                            <select
-                                name="priority"
-                                class="w-full border-gray-300 rounded-md shadow-sm @error('priority') border-red-500 @enderror"
-                            >
+                            <select name="priority"
+                                class="w-full border-gray-200 rounded-md text-sm
+                                focus:ring-gray-900 focus:border-gray-900
+                                @error('priority') border-red-300 @enderror">
                                 <option value="">Select Priority</option>
                                 @foreach(['low', 'medium', 'high', 'critical'] as $priority)
-                                    <option value="{{ $priority }}" {{ old('priority') === $priority ? 'selected' : '' }}>
+                                    <option value="{{ $priority }}"
+                                        {{ old('priority') === $priority ? 'selected' : '' }}>
                                         {{ ucfirst($priority) }}
                                     </option>
                                 @endforeach
                             </select>
                             @error('priority')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        {{-- Category --}}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">
-                                Category
-                            </label>
-                            <select
-                                name="category_id"
-                                class="w-full border-gray-300 rounded-md shadow-sm @error('category_id') border-red-500 @enderror"
-                            >
+                            <label class="block text-xs font-medium text-gray-400
+                                uppercase tracking-wide mb-1.5">Category</label>
+                            <select name="category_id"
+                                class="w-full border-gray-200 rounded-md text-sm
+                                focus:ring-gray-900 focus:border-gray-900
+                                @error('category_id') border-red-300 @enderror">
                                 <option value="">Select Category</option>
                                 @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                    <option value="{{ $category->id }}"
+                                        {{ old('category_id') == $category->id
+                                            ? 'selected' : '' }}>
                                         {{ $category->name }}
                                     </option>
                                 @endforeach
                             </select>
                             @error('category_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="mt-1.5 text-xs text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
-
                     </div>
 
-                    {{-- Actions --}}
-                    <div class="flex items-center gap-4 mt-6">
-                        <button
-                            type="submit"
-                            class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500"
-                        >
-                            Submit Ticket
-                        </button>
-                        
-                            href="{{ route('tickets.index') }}"
-                            class="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-                        >
-                            Cancel
-                        </a>
-                    </div>
+                </div>
 
-                </form>
-            </div>
+                {{-- Actions --}}
+                <div class="flex items-center gap-3 mt-6 pt-5 border-t border-gray-100">
+                    <button type="submit"
+                        class="px-4 py-2 bg-gray-900 text-white text-sm font-medium
+                        rounded-md hover:bg-gray-700 transition-colors">
+                        Submit Ticket
+                    </button>
+                    <a href="{{ route('tickets.index') }}"
+                        class="px-4 py-2 bg-white text-gray-600 text-sm font-medium
+                        rounded-md border border-gray-200 hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
         </div>
     </div>
 </x-app-layout>
